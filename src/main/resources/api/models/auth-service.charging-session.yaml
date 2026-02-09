@@ -1,0 +1,50 @@
+---
+  components:
+    schemas:
+      ChargingSessionAuthRequest:
+        type: object
+        required:
+          - station_id
+          - driver_token
+          - callback_url
+        properties:
+          station_id:
+            description: "UUIDv4 Station Identifier."
+            type: string
+            example: 123e4567-e89b-12d3-a456-426614174000
+          driver_token:
+            description: "Driver Identifier."
+            type: string
+            minLength: 20
+            maxLength: 80
+            pattern: '^[\w-._~]$'
+            example: validDriverToken123
+          callback_url:
+            description: "Callback url."
+            type: string
+            pattern: '^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$'
+            example: https://zurich-charging.com/stations/1
+      ChargingSessionAuthResponse:
+        type: object
+        properties:
+          station_id:
+            description: "UUIDv4 Station Identifier."
+            type: string
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174000
+          driver_token:
+            description: "Driver Identifier."
+            type: string
+            minLength: 20
+            maxLength: 80
+            pattern: '^[\w-._~]$'
+            example: validDriverToken123
+          status:
+            description: "Auth Decision."
+            type: string
+            enum:
+              - allowed
+              - not_allowed
+              - unknown
+              - invalid
+            example: allowed

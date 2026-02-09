@@ -1,0 +1,32 @@
+openapi: 3.1.0
+info:
+  title: Charging Session Authorize API
+  description: Endpoints to authorize charging sessions
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:8080/api-controller'
+paths:
+  /charging-sessions:
+    post:
+      tags:
+        - authorize-charging-session
+      summary: Authorize new Charging Session
+      description: API to authorize new charging session for the given station and driver Ids
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "models/auth-service.charging-session.yaml#components/schemas/ChargingSessionAuthRequest"
+      responses:
+        200:
+          description: Charging Session Acknowledgement Response
+          content:
+            application/json:
+              schema:
+                $ref: "models/controller.charging-session.yaml#components/schemas/ChargingSessionAck"
+        default:
+          description: Unknown Error
+          content:
+            application/json:
+              schema:
+                $ref: "models/common.yaml#components/schemas/ErrorResponse"
