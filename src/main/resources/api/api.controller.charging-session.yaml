@@ -13,6 +13,7 @@ paths:
       summary: Authorize new Charging Session
       description: API to authorize new charging session for the given station and driver Ids
       requestBody:
+        required: true
         content:
           application/json:
             schema:

@@ -18,11 +18,28 @@ import java.util.concurrent.TimeUnit
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.*
 import org.slf4j.event.*
+import java.util.UUID
 
-fun Application.configureSerialization() {
-    routing {
-        get("/json/kotlinx-serialization") {
-            call.respond(mapOf("hello" to "world"))
+fun Application.configureMonitoring() {
+    install(DropwizardMetrics) {
+        Slf4jReporter.forRegistry(registry)
+            .outputTo(this@configureMonitoring.log)
+            .convertRatesTo(TimeUnit.SECONDS)
+            .convertDurationsTo(TimeUnit.MILLISECONDS)
+            .build()
+            .start(10, TimeUnit.SECONDS)
+    }
+    install(CallId) {
+        header(HttpHeaders.XRequestId)
+        generate {
+            UUID.randomUUID().toString()
         }
+        verify { callId: String ->
+            callId.isNotEmpty()
+        }
+        replyToHeader(HttpHeaders.XRequestId)
+    }
+    install(CallLogging) {
+        callIdMdc("call-id")
     }
 }

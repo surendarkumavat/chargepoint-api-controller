@@ -19,22 +19,11 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.*
 import org.slf4j.event.*
 
-fun Application.configureMonitoring() {
-    install(DropwizardMetrics) {
-        Slf4jReporter.forRegistry(registry)
-            .outputTo(this@configureMonitoring.log)
-            .convertRatesTo(TimeUnit.SECONDS)
-            .convertDurationsTo(TimeUnit.MILLISECONDS)
-            .build()
-            .start(10, TimeUnit.SECONDS)
-    }
-    install(CallId) {
-        header(HttpHeaders.XRequestId)
-        verify { callId: String ->
-            callId.isNotEmpty()
-        }
-    }
-    install(CallLogging) {
-        callIdMdc("call-id")
-    }
+fun Application.configureDatabases() {
+    val database = Database.connect(
+        url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
+        user = "root",
+        driver = "org.h2.Driver",
+        password = "",
+    )
 }

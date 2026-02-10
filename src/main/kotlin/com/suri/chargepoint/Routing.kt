@@ -1,6 +1,10 @@
 package com.suri.chargepoint
 
 import com.codahale.metrics.*
+import com.suri.chargepoint.apicontroller.client.authservice.apis.AuthorizeChargingSessionApi
+import com.suri.chargepoint.domain.chargingsession.controller.chargingSessionRoutes
+import com.suri.chargepoint.domain.chargingsession.repository.ChargingSessionRepositoryImpl
+import com.suri.chargepoint.domain.chargingsession.service.ChargingSessionService
 import io.ktor.http.*
 import io.ktor.resources.*
 import io.ktor.serialization.kotlinx.json.*
@@ -26,16 +30,8 @@ fun Application.configureRouting() {
             call.respondText(text = "500: $cause" , status = HttpStatusCode.InternalServerError)
         }
     }
-    routing {
-        get("/") {
-            call.respondText("Hello World!")
-        }
-        get<Articles> { article ->
-            // Get all articles ...
-            call.respond("List of articles sorted starting from ${article.sort}")
-        }
-    }
+    chargingSessionRoutes(ChargingSessionService(
+        ChargingSessionRepositoryImpl(),
+        AuthorizeChargingSessionApi()
+    ))
 }
-@Serializable
-@Resource("/articles")
-class Articles(val sort: String? = "new")

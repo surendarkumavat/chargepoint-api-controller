@@ -30,6 +30,8 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.dao)
+    implementation(libs.kotlinx.coroutines.slf4j)
     implementation(libs.h2)
     implementation(libs.ktor.server.host.common)
     implementation(libs.ktor.server.status.pages)
@@ -42,7 +44,7 @@ dependencies {
 
 val openApiOutDir: Provider<Directory> = layout.buildDirectory.dir("generated/openapi")
 val apiSourcesPath = "$rootDir/src/main/resources/api"
-val apiRootName = "com.suri.chargepoint.api_controller"
+val apiRootName = "com.suri.chargepoint.apicontroller"
 
 tasks.register<GenerateTask>("generateAuthServiceApiClient") {
     generatorName.set("kotlin")
@@ -71,9 +73,10 @@ tasks.register<GenerateTask>("generateAuthServiceApiClient") {
 
 tasks.register<GenerateTask>("generateControllerAuthServiceApi") {
     generatorName.set("kotlin-server")
+    library.set("ktor")
     inputSpec.set("$apiSourcesPath/api.controller.charging-session.yaml")
     outputDir.set(openApiOutDir.get().dir("api-controller").asFile.absolutePath)
-    packageName.set("$apiRootName.server.charging_session")
+    packageName.set("$apiRootName.server.chargingsession")
 
     configOptions.set(
         mapOf(
@@ -84,13 +87,12 @@ tasks.register<GenerateTask>("generateControllerAuthServiceApi") {
             "featureConditionalHeaders" to "false")
     )
 
+
     // Generate apis + models, and ONLY the supporting files we whitelist
     globalProperties.set(
         mapOf(
-            "apis" to "",
+            "apis" to "false",
             "models" to "",
-            // Put real routing files here (from .openapi-generator/FILES)
-            "supportingFiles" to "Paths.kt,ApiKeyAuth.kt",
             "apiDocs" to "false",
             "modelDocs" to "false",
             "apiTests" to "false",
