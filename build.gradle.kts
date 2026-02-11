@@ -44,6 +44,7 @@ dependencies {
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.mockk)
+    testImplementation(libs.ktor.client.mock)
 }
 
 val openApiOutDir: Provider<Directory> = layout.buildDirectory.dir("generated/openapi")

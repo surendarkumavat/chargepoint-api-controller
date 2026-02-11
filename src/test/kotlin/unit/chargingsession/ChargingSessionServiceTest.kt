@@ -1,58 +1,114 @@
 package com.suri.chargepoint.unit.chargingsession
 
 import com.suri.chargepoint.apicontroller.client.authservice.apis.AuthorizeChargingSessionApi
+import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSessionsPost200Response
+import com.suri.chargepoint.domain.chargingsession.client.ChargingSessionAuthServiceApiWrapper
 import com.suri.chargepoint.domain.chargingsession.dto.ChargingSessionDto
 import com.suri.chargepoint.domain.chargingsession.repository.ChargingSessionRepository
-import com.suri.chargepoint.domain.chargingsession.service.ChargingSessionAuthServiceApiWrapper
 import com.suri.chargepoint.domain.chargingsession.service.ChargingSessionService
+import com.suri.chargepoint.domain.chargingsession.worker.AsyncAuthServiceWorker
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.*
+import io.ktor.http.*
+import io.ktor.http.content.TextContent
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.utils.io.*
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
 import java.util.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ChargingSessionServiceTest {
-    private val chargingSessionRepository = mockk<ChargingSessionRepository>()
+    private val repo = mockk<ChargingSessionRepository>()
 
     @BeforeTest
     fun setup() {
-        coEvery { chargingSessionRepository.sessionAuthRequestExists(any()) } returns false
-        coEvery { chargingSessionRepository.updateSessionStatus(any()) } returns Unit
+        coEvery { repo.sessionAuthRequestExists(any()) } returns false
+        coEvery { repo.updateSessionStatus(any()) } returns Unit
+        coEvery { repo.add(any()) } returns Unit
     }
 
     @Test
     fun `Test charging session service valid`() = runTest {
         val apiWrapper = mockk<ChargingSessionAuthServiceApiWrapper>()
+        val worker = AsyncAuthServiceWorker(repo, apiWrapper)
+        worker.start()
         val chargingSessionService = ChargingSessionService(
-            chargingSessionRepository,
-            apiWrapper
+            repo,
+            worker
         )
         coEvery { apiWrapper.authorize(any()) } returns "valid"
+        coEvery { apiWrapper.triggerCallBack(any()) } returns Unit
 
-        val dto = ChargingSessionDto(UUID.randomUUID(), UUID.randomUUID(), "abc123_", "accepted")
+        val correlationId = UUID.randomUUID()
+        val stationId = UUID.randomUUID()
+        val driverId = "abc123_"
+        val callBackUrl = "http://localhost:8080/callback"
+
+        val dto = ChargingSessionDto(correlationId, stationId, driverId, callBackUrl)
+
         chargingSessionService.initiateSession(dto)
 
-        assertEquals("valid", dto.status)
+        val expectedDto = ChargingSessionDto(correlationId, stationId, driverId, callBackUrl, "valid")
+        coVerify(timeout = 3000) { apiWrapper.triggerCallBack(expectedDto) }
+        worker.stop()
     }
 
     @Test
     fun `Test charging session auth service error`() = runTest {
-        coEvery { chargingSessionRepository.sessionAuthRequestExists(any()) } returns false
-        coEvery { chargingSessionRepository.updateSessionStatus(any()) } returns Unit
+        val done = CompletableDeferred<Unit>()
+        val api: AuthorizeChargingSessionApi = mockk(relaxed = true)
+        val mockEngine = MockEngine { request ->
+            assertEquals(HttpMethod.Post, request.method)
 
-        val api: AuthorizeChargingSessionApi = mockk<AuthorizeChargingSessionApi>()
-        val apiWrapper = ChargingSessionAuthServiceApiWrapper(api)
+            val textContent = request.body as TextContent
+            val jsonText = textContent.text
+            val body = Json.decodeFromString<ChargingSessionsPost200Response>(jsonText)
+            assertEquals("unknown", body.status.toString())
+            done.complete(Unit)
+
+            respond(
+                content = ByteReadChannel("""{"success": true}"""),
+                status = HttpStatusCode.OK
+            )
+        }
+        val client = HttpClient(mockEngine) {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+        val apiWrapper = ChargingSessionAuthServiceApiWrapper(api, client)
+
+        val worker = AsyncAuthServiceWorker(repo, apiWrapper)
+        worker.start()
+
         val chargingSessionService = ChargingSessionService(
-            chargingSessionRepository,
-            apiWrapper
+            repo,
+            worker
         )
         coEvery { api.chargingSessionsPost(any()) } throws Exception("test")
+        //coEvery { apiWrapper.triggerCallBack(any()) } returns Unit
 
-        val dto = ChargingSessionDto(UUID.randomUUID(), UUID.randomUUID(), "abc123_", "accepted")
+        val correlationId = UUID.randomUUID()
+        val stationId = UUID.randomUUID()
+        val driverId = "abc123_"
+        val callBackUrl = "http://localhost:8080/callback"
+
+        val dto = ChargingSessionDto(correlationId, stationId, driverId, callBackUrl)
+
         chargingSessionService.initiateSession(dto)
 
-        assertEquals("unknown", dto.status)
+        done.await()
+        worker.stop()
     }
 }

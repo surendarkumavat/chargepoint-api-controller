@@ -24,8 +24,7 @@ internal fun Application.chargingSessionRoutes(service: ChargingSessionService) 
                     UUID.fromString(call.callId),
                     UUID.fromString(body.stationId),
                     body.driverToken,
-                    body.callbackUrl,
-                    ""
+                    body.callbackUrl
                 )
 
             service.initiateSession(dto)
