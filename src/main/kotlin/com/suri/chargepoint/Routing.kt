@@ -1,5 +1,6 @@
 package com.suri.chargepoint
 
+import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSessionsPostDefaultResponse
 import com.suri.chargepoint.domain.chargingsession.controller.chargingSessionRoutes
 import com.suri.chargepoint.domain.chargingsession.repository.ChargingSessionRepository
 import com.suri.chargepoint.domain.chargingsession.service.ChargingSessionService
@@ -17,7 +18,7 @@ internal fun Application.configureRouting(repo: ChargingSessionRepository, worke
     }
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            call.respondText(text = "500: $cause", status = HttpStatusCode.InternalServerError)
+            call.respond(status = HttpStatusCode.InternalServerError, message = ChargingSessionsPostDefaultResponse(type = "api/status-codes/internal-server-error", title = "Internal Server Error", status = 500, detail = "$cause"))
         }
     }
     chargingSessionRoutes(
