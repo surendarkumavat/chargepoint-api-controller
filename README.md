@@ -57,6 +57,7 @@ Need to use one of:
     - With: Task Queueing and Async API Invocation
  - Returning: Charging Session Authorization using callback url
     - And: Decision persistence in DB for debugging
+ - Bondaries: no request Auth and throttling at controller level
 
 ### Implementation Approach
 v1: Synchronous flow
@@ -112,3 +113,26 @@ SQL vs NoSql -> This use case seems quite simple. we can use either but the appr
 DB interaction is quite simple. Since we are learning, let's try to use ORM abstraction.
 
 Exposed seems to be available. ktor generator and ktor server documentation has a neat guide helping us get started. The only catch is although v1 is available, example code still uses 0.6xx. Tried to upgarde to lates but example code no longer works and there a quite a lot of adjustements needed. So falling back to 0.6 for quick start.
+
+#### Async Processing
+First glance: Need to Use Co-routines. ktor also uses coroutines for request processing that is all methods called in a request flow need to be suspend
+
+Need something akin to ExecutorService in Java with Unbounded Queue.
+
+Custom Coroutine Scopes bound to IO Dispatchers(Backing Threads) and type Service Job seem to be the answer. ktor also has its own coroutine scopes. Some are bound to applicaiton, some to request and there is a global scope. global (from experience everywhere else) is strongly discouraged.
+
+On to the queue, we need to ensure that the requests are not rate-limited. so won't use bounded. can use some blocking queues from java world. However found Channel abstraction that is built exactly for this. By name, seems irrelevant but came across it again and again in various forums and threads. So finally looked at the API and was convinced about it being key to our case
+
+### Testing
+#### Unit
+Service class went through mutiple iterations, first to get a working code, next to make it DI capable, and finally while writing cases to make it easier to test by accepting the mocks. Also, makes our class design more consistent and aligned to standards
+Now all we wanted was mockito. Checked, mockito available but not kotlin native. simple google search for mock kotlin takes us to mockk. And that's what we need.
+
+2 simple unit test cases to test the Service class:
+1. Test happy flow by mocking api client and introspecting client call to confirm the right status is submitted to client.
+   - Turns out mocking client is not that easy. Recommendation everywhere is to wrap it and mock the wrapper. Also, made code simpler for client calls.
+2. Test error flow by throwing exception on mocked method call of client
+
+#### Integration
+ktor documentation page has very good examples of testing api server calls. Taking that as reference, starting with test cases 
+@TODO
