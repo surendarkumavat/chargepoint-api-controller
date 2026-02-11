@@ -7,6 +7,7 @@ logback = "1.5.28"
 openapi-generator = "7.19.0"
 kotlinx = "1.10.2"
 mockk = "1.14.9"
+logging = "3.0.5"
 
 [libraries]
 ktor-server-metrics = { module = "io.ktor:ktor-server-metrics", version.ref = "ktor" }
@@ -31,6 +32,9 @@ ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml", version.
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+kotlin-logging = { module = "io.github.microutils:kotlin-logging", version.ref = "logging" }
 
 
 [plugins]

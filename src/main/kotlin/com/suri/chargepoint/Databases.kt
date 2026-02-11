@@ -28,8 +28,4 @@ fun Application.configureDatabases() {
         driver = "org.h2.Driver",
         password = "",
     )
-    transaction {
-        arrayOf<Table>(ChargingSessionTable)
-        Unit
-    }
 }

@@ -7,7 +7,8 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
+    val httpClient = configureHttpClient()
     configureMonitoring()
     configureDatabases()
-    configureRouting()
+    configureRouting(httpClient)
 }

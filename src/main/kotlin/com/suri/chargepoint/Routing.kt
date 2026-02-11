@@ -6,6 +6,7 @@ import com.suri.chargepoint.domain.chargingsession.controller.chargingSessionRou
 import com.suri.chargepoint.domain.chargingsession.repository.ChargingSessionRepositoryImpl
 import com.suri.chargepoint.domain.chargingsession.service.ChargingSessionAuthServiceApiWrapper
 import com.suri.chargepoint.domain.chargingsession.service.ChargingSessionService
+import io.ktor.client.HttpClient
 import io.ktor.http.*
 import io.ktor.resources.*
 import io.ktor.serialization.kotlinx.json.*
@@ -24,7 +25,7 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.*
 import org.slf4j.event.*
 
-fun Application.configureRouting() {
+fun Application.configureRouting(httpClient: HttpClient) {
     install(Resources)
     install(StatusPages) {
         exception<Throwable> { call, cause ->
@@ -34,7 +35,7 @@ fun Application.configureRouting() {
     chargingSessionRoutes(
         ChargingSessionService(
             ChargingSessionRepositoryImpl(),
-            ChargingSessionAuthServiceApiWrapper(AuthorizeChargingSessionApi())
+            ChargingSessionAuthServiceApiWrapper(AuthorizeChargingSessionApi(), httpClient)
         )
     )
 }
