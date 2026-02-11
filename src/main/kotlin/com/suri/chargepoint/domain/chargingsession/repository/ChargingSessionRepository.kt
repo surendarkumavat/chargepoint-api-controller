@@ -1,6 +1,5 @@
 package com.suri.chargepoint.domain.chargingsession.repository
 
-import com.suri.chargepoint.apicontroller.server.chargingsession.models.ChargingSessionsPostRequest
 import com.suri.chargepoint.domain.chargingsession.dto.ChargingSessionDto
 
 interface ChargingSessionRepository {

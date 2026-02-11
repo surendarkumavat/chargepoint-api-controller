@@ -1,23 +1,23 @@
 ---
-  components:
-    schemas:
-      ErrorResponse:
-        type: object
-        properties:
-          type:
-            description: "Error Type."
-            type: string
-            example: "/api/status-codes/validation-error"
-          title:
-            description: "Error Title."
-            type: string
-            example: "Validation failed"
-          status:
-            description: "Error Status Code."
-            type: integer
-            format: int32
-            example: 400
-          detail:
-            description: "Error Detail giving additional details on the error."
-            type: string
-            example: "Driver Token Invalid Format"
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        type:
+          description: "Error Type."
+          type: string
+          example: "/api/status-codes/validation-error"
+        title:
+          description: "Error Title."
+          type: string
+          example: "Validation failed"
+        status:
+          description: "Error Status Code."
+          type: integer
+          format: int32
+          example: 400
+        detail:
+          description: "Error Detail giving additional details on the error."
+          type: string
+          example: "Driver Token Invalid Format"

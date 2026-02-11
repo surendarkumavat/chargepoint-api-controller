@@ -7,6 +7,7 @@ import com.suri.chargepoint.domain.chargingsession.repository.ChargingSessionRep
 import com.suri.chargepoint.domain.chargingsession.worker.AsyncAuthServiceWorker
 import io.ktor.server.application.*
 
+
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
 }
@@ -20,6 +21,7 @@ fun Application.module() {
     configureMonitoring()
     configureDatabases()
     configureRouting(repo, worker)
+
 
     environment.monitor.subscribe(ApplicationStarted) {
         worker.start()

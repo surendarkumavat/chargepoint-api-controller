@@ -1,23 +1,20 @@
 package com.suri.chargepoint.domain.chargingsession.controller
 
+
+import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSessionsPostRequest
 import com.suri.chargepoint.apicontroller.server.chargingsession.models.ChargingSessionsPost200Response
-import com.suri.chargepoint.apicontroller.server.chargingsession.models.ChargingSessionsPostRequest
 import com.suri.chargepoint.domain.chargingsession.dto.ChargingSessionDto
 import com.suri.chargepoint.domain.chargingsession.service.ChargingSessionService
-import io.ktor.http.HttpStatusCode
-import io.ktor.resources.Resource
-import io.ktor.server.application.Application
-import io.ktor.server.plugins.callid.callId
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
-import io.ktor.server.routing.post
-import io.ktor.server.routing.routing
-import kotlinx.serialization.Serializable
-import java.util.UUID
+import io.ktor.server.application.*
+import io.ktor.server.plugins.callid.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import java.util.*
 
 internal fun Application.chargingSessionRoutes(service: ChargingSessionService) {
     routing {
-        post<ChargingSessionResource.Create> {
+        post("/charging-sessions") {
             val body: ChargingSessionsPostRequest = call.receive()
             val dto =
                 ChargingSessionDto(
@@ -30,18 +27,10 @@ internal fun Application.chargingSessionRoutes(service: ChargingSessionService) 
             service.initiateSession(dto)
 
             val response = ChargingSessionsPost200Response(
-                ChargingSessionsPost200Response.Status.valueOf(dto.status),
-                "Request is being processed asynchronously. The result will be sent to the provided callback URL."
+                status = ChargingSessionsPost200Response.Status.valueOf(dto.status),
+                message = "Request is being processed asynchronously. The result will be sent to the provided callback URL."
             )
             call.respond(response)
         }
     }
-}
-
-@Serializable
-@Resource("/charging-sessions")
-class ChargingSessionResource {
-    @Serializable
-    @Resource("")
-    class Create(val parent: ChargingSessionResource = ChargingSessionResource())
 }

@@ -24,7 +24,6 @@ dependencies {
     implementation(libs.ktor.server.call.id)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.auth)
-    implementation(libs.ktor.server.resources)
     implementation(libs.ktor.server.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.exposed.core)
@@ -63,15 +62,7 @@ tasks.register<GenerateTask>("generateAuthServiceApiClient") {
             "serializationLibrary" to "kotlinx_serialization",
             "nonPublicApi" to "true",
             "omitGradlePluginVersions" to "true",
-            "omitGradleWrapper" to "true")
-    )
-
-    globalProperties.set(
-        mapOf(
-            "apiDocs" to "false",
-            "modelDocs" to "false",
-            "apiTests" to "false",
-            "modelTests" to "false"
+            "omitGradleWrapper" to "true"
         )
     )
 }

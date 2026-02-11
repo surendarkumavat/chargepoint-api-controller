@@ -1,25 +1,10 @@
 package com.suri.chargepoint
 
-import com.codahale.metrics.*
 import com.suri.chargepoint.domain.chargingsession.dao.ChargingSessionTable
-import io.ktor.http.*
-import io.ktor.resources.*
-import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.metrics.dropwizard.*
-import io.ktor.server.plugins.callid.*
-import io.ktor.server.plugins.calllogging.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.plugins.statuspages.*
-import io.ktor.server.request.*
-import io.ktor.server.resources.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import java.util.concurrent.TimeUnit
-import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.slf4j.event.*
 
 fun Application.configureDatabases() {
     val database = Database.connect(
@@ -28,4 +13,8 @@ fun Application.configureDatabases() {
         driver = "org.h2.Driver",
         password = "",
     )
+    transaction {
+        SchemaUtils.create(ChargingSessionTable) // add more tables here
+        // SchemaUtils.createMissingTablesAndColumns(Users) // alternative for dev
+    }
 }

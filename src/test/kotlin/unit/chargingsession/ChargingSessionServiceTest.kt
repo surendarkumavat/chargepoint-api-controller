@@ -7,14 +7,12 @@ import com.suri.chargepoint.domain.chargingsession.dto.ChargingSessionDto
 import com.suri.chargepoint.domain.chargingsession.repository.ChargingSessionRepository
 import com.suri.chargepoint.domain.chargingsession.service.ChargingSessionService
 import com.suri.chargepoint.domain.chargingsession.worker.AsyncAuthServiceWorker
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.engine.mock.respond
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.*
+import io.ktor.client.*
+import io.ktor.client.engine.mock.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.http.*
-import io.ktor.http.content.TextContent
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.http.content.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.utils.io.*
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -22,7 +20,6 @@ import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
 import java.util.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test

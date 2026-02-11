@@ -1,7 +1,7 @@
 package com.suri.chargepoint.domain.chargingsession.dto
 
-import com.suri.chargepoint.apicontroller.server.chargingsession.models.ChargingSessionsPost200Response
-import java.util.UUID
+import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSessionsPost200Response
+import java.util.*
 
 data class ChargingSessionDto(
     val correlationId: UUID,

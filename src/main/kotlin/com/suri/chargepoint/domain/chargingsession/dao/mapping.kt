@@ -2,18 +2,13 @@ package com.suri.chargepoint.domain.chargingsession.dao
 
 import com.suri.chargepoint.domain.chargingsession.dto.ChargingSessionDto
 import kotlinx.coroutines.Dispatchers
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IdTable
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import java.util.UUID
+import java.util.*
 
 object ChargingSessionTable : IdTable<UUID>("charging_session") {
     override val id = uuid("correlation_id").entityId()

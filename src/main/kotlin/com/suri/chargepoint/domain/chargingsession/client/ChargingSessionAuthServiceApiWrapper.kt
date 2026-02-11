@@ -4,11 +4,9 @@ import com.suri.chargepoint.apicontroller.client.authservice.apis.AuthorizeCharg
 import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSessionsPost200Response
 import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSessionsPostRequest
 import com.suri.chargepoint.domain.chargingsession.dto.ChargingSessionDto
-import io.ktor.client.HttpClient
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 import mu.KotlinLogging
 
 private val log = KotlinLogging.logger {}
