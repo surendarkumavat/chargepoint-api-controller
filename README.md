@@ -148,3 +148,25 @@ If the server starts successfully, you'll see the following output:
 2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
 ```
 
+## Implementation
+### Public API Details
+
+Initiate Charging Session API: POST http://localhost:8080/charging-sessions
+
+Expected Body:
+```
+{
+  "station_id": "123e4567-e89b-12d3-a456-426614174000",
+  "driver_token": "validDriverToken1234",
+  "callback_url": "http://localhost:8080/callback/#/~123" 
+}
+```
+
+Expected Response: HTTP 202
+```
+{
+    "status": "accepted",
+    "message": "Request is being processed asynchronously. The result will be sent to the provided callback URL."
+}
+```
+
