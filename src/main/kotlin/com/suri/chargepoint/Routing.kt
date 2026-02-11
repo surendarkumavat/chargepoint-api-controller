@@ -4,6 +4,7 @@ import com.codahale.metrics.*
 import com.suri.chargepoint.apicontroller.client.authservice.apis.AuthorizeChargingSessionApi
 import com.suri.chargepoint.domain.chargingsession.controller.chargingSessionRoutes
 import com.suri.chargepoint.domain.chargingsession.repository.ChargingSessionRepositoryImpl
+import com.suri.chargepoint.domain.chargingsession.service.ChargingSessionAuthServiceApiWrapper
 import com.suri.chargepoint.domain.chargingsession.service.ChargingSessionService
 import io.ktor.http.*
 import io.ktor.resources.*
@@ -27,11 +28,13 @@ fun Application.configureRouting() {
     install(Resources)
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            call.respondText(text = "500: $cause" , status = HttpStatusCode.InternalServerError)
+            call.respondText(text = "500: $cause", status = HttpStatusCode.InternalServerError)
         }
     }
-    chargingSessionRoutes(ChargingSessionService(
-        ChargingSessionRepositoryImpl(),
-        AuthorizeChargingSessionApi()
-    ))
+    chargingSessionRoutes(
+        ChargingSessionService(
+            ChargingSessionRepositoryImpl(),
+            ChargingSessionAuthServiceApiWrapper(AuthorizeChargingSessionApi())
+        )
+    )
 }

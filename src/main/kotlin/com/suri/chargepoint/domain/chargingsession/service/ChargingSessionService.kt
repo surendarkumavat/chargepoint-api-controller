@@ -7,23 +7,29 @@ import com.suri.chargepoint.domain.chargingsession.repository.ChargingSessionRep
 
 internal class ChargingSessionService(
     private val chargingSessionRepository: ChargingSessionRepository,
-    private val authorizeChargingSessionApi: AuthorizeChargingSessionApi
+    private val apiWrapper: ChargingSessionAuthServiceApiWrapper
 ) {
     suspend fun initiateSession(dto: ChargingSessionDto) {
         if (!chargingSessionRepository.sessionAuthRequestExists(dto)) {
-            dto.status =
-                try {
-                    authorizeChargingSessionApi.chargingSessionsPost(
-                        ChargingSessionsPostRequest(
-                            dto.stationId.toString(),
-                            dto.driverId,
-                            dto.callbackUrl
-                        )
-                    ).body().status?.toString() ?: "unknown"
-                } catch (e: Exception) {
-                    "unknown"
-                }
+            dto.status = apiWrapper.authorize(dto)
             chargingSessionRepository.updateSessionStatus(dto)
+        }
+    }
+}
+
+internal class ChargingSessionAuthServiceApiWrapper(private val api: AuthorizeChargingSessionApi) {
+
+    suspend fun authorize(dto: ChargingSessionDto): String {
+        return try {
+            api.chargingSessionsPost(
+                ChargingSessionsPostRequest(
+                    dto.stationId.toString(),
+                    dto.driverId,
+                    dto.callbackUrl
+                )
+            ).body().status?.toString() ?: "unknown"
+        } catch (_: Exception) {
+            "unknown"
         }
     }
 }

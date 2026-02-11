@@ -1,6 +1,7 @@
 package com.suri.chargepoint
 
 import com.codahale.metrics.*
+import com.suri.chargepoint.domain.chargingsession.dao.ChargingSessionTable
 import io.ktor.http.*
 import io.ktor.resources.*
 import io.ktor.serialization.kotlinx.json.*
@@ -17,6 +18,7 @@ import io.ktor.server.routing.*
 import java.util.concurrent.TimeUnit
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.event.*
 
 fun Application.configureDatabases() {
@@ -26,4 +28,8 @@ fun Application.configureDatabases() {
         driver = "org.h2.Driver",
         password = "",
     )
+    transaction {
+        arrayOf<Table>(ChargingSessionTable)
+        Unit
+    }
 }
