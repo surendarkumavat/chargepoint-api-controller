@@ -12,14 +12,13 @@ import io.ktor.server.plugins.callid.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import java.net.URI
 import java.util.*
 
 internal fun Application.chargingSessionRoutes(service: ChargingSessionService) {
     routing {
         post("/charging-sessions") {
             val driverRegex = Regex("^[\\w-._~]{20,80}$")
-            val callbackRegex =
-                Regex("^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$'")
             val body: ChargingSessionsPostRequest = call.receive()
             val correlationId: UUID = UUID.fromString(call.callId)
 
@@ -32,8 +31,14 @@ internal fun Application.chargingSessionRoutes(service: ChargingSessionService) 
             if (!driverRegex.matches(body.driverToken))
                 throw BadRequestException("Invalid Driver Token")
 
-            if (!callbackRegex.matches(body.callbackUrl))
-                throw BadRequestException("Invalid Callback Url")
+            try {
+                val uri = URI(body.callbackUrl)
+
+                if (uri.scheme !in listOf("http", "https") || uri.host.isNullOrBlank())
+                    throw BadRequestException("Invalid callback url")
+            } catch (e: Exception) {
+                throw BadRequestException("Invalid callback url")
+            }
 
             val dto =
                 ChargingSessionDto(
