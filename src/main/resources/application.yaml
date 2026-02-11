@@ -10,10 +10,10 @@ app:
     http-client:
       max-connections-count: 1000
       max-connections-per-route: 100
-      request-timeout: 10_000
-      connect-timeout: 5_000
-      socket-timeout: 5_000
-      keep-alive-time: 5_000
+      request-timeout: 10000
+      connect-timeout: 5000
+      socket-timeout: 5000
+      keep-alive-time: 5000
       connect-attempts: 5
     auth-service:
       max-parallel-requests: 100
