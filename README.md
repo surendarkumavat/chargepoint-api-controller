@@ -131,8 +131,16 @@ Now all we wanted was mockito. Checked, mockito available but not kotlin native.
 2 simple unit test cases to test the Service class:
 1. Test happy flow by mocking api client and introspecting client call to confirm the right status is submitted to client.
    - Turns out mocking client is not that easy. Recommendation everywhere is to wrap it and mock the wrapper. Also, made code simpler for client calls.
-2. Test error flow by throwing exception on mocked method call of client
+2. Test error flow by throwing exception on mocked method call of client and expect unknown status in callback call from wrapper
 
 #### Integration
 ktor documentation page has very good examples of testing api server calls. Taking that as reference, starting with test cases 
+
 @TODO
+
+### Scaling Considerations
+Conceptually, api-controller service for hitting auth service can be scaled in 2 ways as and when more capacity becomes available on the auth service:
+1. Vertical -> increase auth service parallel request configuration per api-controller instance by updating in application.yaml. These configurations may be further externalized to be more on-demand.
+2. Horizontally -> In case, we reach upper limit per instance, we can horizontally scale by having more instances of api-controller. (Ofcource DB will have to be a proper DB and not the in-memory one we are using to simulate DB interaction currently)
+
+We can even have a scaling rule for auth service based on hit load and hit load we can control exclusively from api-controller in the above 2 ways
