@@ -12,6 +12,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import io.ktor.server.config.*
 
 
 fun main(args: Array<String>) {
@@ -20,11 +21,39 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     val repo: ChargingSessionRepository = ChargingSessionRepositoryImpl()
-    val httpClient = configureHttpClient()
+
+    //Configure Http Clients
+    val httpConfig = environment.config.config("app.api-controller.http-client")
+    val httpClientConfig = HttpClientConfig(
+        maxConnectionsCount = httpConfig.propertyOrNull("max-connections-count")?.getAs() ?: 1000,
+        maxConnectionsPerRoute = httpConfig.propertyOrNull("max-connections-per-route")?.getAs() ?: 100,
+        pipelineMaxSize = httpConfig.propertyOrNull("pipeline-max-size")?.getAs() ?: 20,
+        keepAliveTime = httpConfig.propertyOrNull("keep-alive-time")?.getAs() ?: 5000,
+        connectTimeout = httpConfig.propertyOrNull("connect-timeout")?.getAs() ?: 5000,
+        socketTimeout = httpConfig.propertyOrNull("socket-timeout")?.getAs() ?: 5000,
+        requestTimeout = httpConfig.propertyOrNull("request-timeout")?.getAs() ?: 10_000,
+        connectAttempts = httpConfig.propertyOrNull("connect-attempts")?.getAs() ?: 5
+    )
+    val httpClientEngine = CIO.create() {
+        // this: CIOEngineConfig
+        maxConnectionsCount = httpClientConfig.maxConnectionsCount
+        requestTimeout = httpClientConfig.requestTimeout
+        endpoint {
+            // this: EndpointConfig
+            maxConnectionsPerRoute = httpClientConfig.maxConnectionsPerRoute
+            pipelineMaxSize = httpClientConfig.pipelineMaxSize
+            keepAliveTime = httpClientConfig.keepAliveTime
+            connectTimeout = httpClientConfig.connectTimeout
+            socketTimeout = httpClientConfig.socketTimeout
+            connectAttempts = httpClientConfig.connectAttempts
+        }
+    }
+    val httpClient = configureHttpClient(httpClientConfig, httpClientEngine)
 
     val api = AuthorizeChargingSessionApi(
-        baseUrl = "https://api.example.com",
-        httpClientEngine = CIO.create(),
+        baseUrl = environment.config.propertyOrNull("app.api-controller.auth-service.base-path")?.getAs()
+            ?: throw IllegalStateException("Missing application configuration property app.api-controller.auth-service.base-path"),
+        httpClientEngine = httpClientEngine,
         httpClientConfig = { config ->
             config.install(ContentNegotiation) {
                 json()
@@ -36,18 +65,25 @@ fun Application.module() {
         })
 
     val apiWrapper = ChargingSessionAuthServiceApiWrapper(api, httpClient)
-    val worker = AsyncAuthServiceWorker(repo, apiWrapper)
 
-    configureMonitoring()
-    configureDatabases()
-    configureRouting(repo, worker)
-
-
+    //configure worker
+    val worker = AsyncAuthServiceWorker(
+        repo,
+        apiWrapper,
+        environment.config.propertyOrNull("app.api-controller.auth-service.max-parallel-requests")?.getAs()
+            ?: 100
+    )
     environment.monitor.subscribe(ApplicationStarted) {
         worker.start()
     }
 
     environment.monitor.subscribe(ApplicationStopping) {
         worker.stop()
+        httpClientEngine.close()
     }
+
+    //Infra Config
+    configureMonitoring()
+    configureDatabases()
+    configureRouting(repo, worker)
 }

@@ -19,7 +19,7 @@ paths:
             schema:
               $ref: "models/auth-service.charging-session.yaml#components/schemas/ChargingSessionAuthRequest"
       responses:
-        200:
+        202:
           description: Charging Session Acknowledgement Response
           content:
             application/json:

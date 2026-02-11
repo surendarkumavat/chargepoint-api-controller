@@ -11,7 +11,8 @@ private val log = KotlinLogging.logger {}
 
 internal class AsyncAuthServiceWorker(
     private val repo: ChargingSessionRepository,
-    private val apiWrapper: ChargingSessionAuthServiceApiWrapper
+    private val apiWrapper: ChargingSessionAuthServiceApiWrapper,
+    private val maxParallelRequests: Int = 100
 ) {
 
     val queue = Channel<ChargingSessionDto>(Channel.UNLIMITED)

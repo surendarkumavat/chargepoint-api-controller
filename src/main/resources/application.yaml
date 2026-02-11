@@ -4,3 +4,17 @@ ktor:
       - com.suri.chargepoint.ApplicationKt.module
   deployment:
     port: 8080
+
+app:
+  api-controller:
+    http-client:
+      max-connections-count: 1000
+      max-connections-per-route: 100
+      request-timeout: 10_000
+      connect-timeout: 5_000
+      socket-timeout: 5_000
+      keep-alive-time: 5_000
+      connect-attempts: 5
+    auth-service:
+      max-parallel-requests: 100
+      base-path: "http://localhost:8080/auth-service"
