@@ -29,7 +29,7 @@ internal fun Application.configureRouting(repo: ChargingSessionRepository, worke
                     type = "api/status-codes/bad-request",
                     title = "Bad Request",
                     status = 400,
-                    detail = "Provided Input is invalid. Please check the request and try again."
+                    detail = "Provided Input is invalid. Error: ${cause.message}"
                 )
             )
         }
