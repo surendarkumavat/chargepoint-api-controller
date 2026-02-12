@@ -1,4 +1,6 @@
-# api-controller
+# API Controller Async Service
+## System Pre-requisites
+- Java 25
 
 ## Building & Running
 
