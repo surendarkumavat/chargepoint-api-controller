@@ -59,7 +59,7 @@ Need to use one of:
     - And: Decision persistence in DB for debugging
  - Bondaries: no request Auth and throttling at controller level
 
-See [here](Assigment.md) for full Assignment Details
+See [here](Assignment.md) for full Assignment Details
 ### Implementation Approach
 v1: Synchronous flow
 
