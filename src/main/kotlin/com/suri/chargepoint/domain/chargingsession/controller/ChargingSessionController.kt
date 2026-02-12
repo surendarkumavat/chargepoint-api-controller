@@ -2,7 +2,7 @@ package com.suri.chargepoint.domain.chargingsession.controller
 
 
 import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSessionsPostRequest
-import com.suri.chargepoint.apicontroller.server.chargingsession.models.ChargingSessionsPost200Response
+import com.suri.chargepoint.apicontroller.server.chargingsession.models.ChargingSessionsPost202Response
 import com.suri.chargepoint.domain.chargingsession.dto.ChargingSessionDto
 import com.suri.chargepoint.domain.chargingsession.service.ChargingSessionService
 import io.ktor.http.*
@@ -50,8 +50,8 @@ internal fun Application.chargingSessionRoutes(service: ChargingSessionService) 
 
             service.initiateSession(dto)
 
-            val response = ChargingSessionsPost200Response(
-                status = ChargingSessionsPost200Response.Status.valueOf(dto.status),
+            val response = ChargingSessionsPost202Response(
+                status = ChargingSessionsPost202Response.Status.valueOf(dto.status),
                 message = "Request is being processed asynchronously. The result will be sent to the provided callback URL."
             )
             call.respond(status = HttpStatusCode.Accepted, message = response)
