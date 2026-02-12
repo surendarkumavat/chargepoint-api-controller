@@ -152,8 +152,7 @@ Scenarios:
  
 #### Integration
 ktor documentation page has very good examples of testing api server calls. Taking that as reference, starting with test cases 
-
-@TODO
+4 test cases, 3 for invalid input and 1 for success input is created.
 
 ### Scaling Considerations
 Conceptually, api-controller service for hitting auth service can be scaled in 2 ways as and when more capacity becomes available on the auth service:
