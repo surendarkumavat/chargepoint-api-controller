@@ -133,6 +133,22 @@ Now all we wanted was mockito. Checked, mockito available but not kotlin native.
    - Turns out mocking client is not that easy. Recommendation everywhere is to wrap it and mock the wrapper. Also, made code simpler for client calls.
 2. Test error flow by throwing exception on mocked method call of client and expect unknown status in callback call from wrapper
 
+#### Manual
+Tested by hitting api-controller public api using talend API tester.
+Scenarios:
+1. Happy Case: Got 200. Realized this was not the right status code for async. changed to 202. Checked logs and found follwing:
+   - Callback (Using HttpClient) failing with json parsing error. installed content negotiation plugin to httpclient
+   - Auth Service Call (Using OpenAPI generated code) failing with similar error.
+   - Not strainghtforward to inject our own httplient into generated client.
+   - But it does provide us with lambda to configure client engine and client config
+   - Created a common engine config for both the calls and externalized the timeout configs to application.yaml
+   - callbacks and auth service calls still fail due to mock urls configured but that error is expected. Need to further test using Integration Test
+2. Invalid input: sent an invalid json. Got an error response with text error.
+   - Updated Status Pages plugin configuration to add generic throwable handling with proper body structure
+   - Added handling for BadRequestException to send 400 bad request
+   - Found out that there was no scaffolding validation code/annotation generated with model classes based on API spec like in java
+   - Implemented manual validation for the input fields using regex for driver, exception handling for url validation
+ 
 #### Integration
 ktor documentation page has very good examples of testing api server calls. Taking that as reference, starting with test cases 
 
