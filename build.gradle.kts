@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.ktor.client.cio)
     implementation(libs.kotlin.logging)
     testImplementation(libs.ktor.server.test.host)
+    testImplementation(libs.ktor.server.core)
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.ktor.client.mock)
@@ -63,6 +64,15 @@ tasks.register<GenerateTask>("generateAuthServiceApiClient") {
             "nonPublicApi" to "true",
             "omitGradlePluginVersions" to "true",
             "omitGradleWrapper" to "true"
+        )
+    )
+    globalProperties.set(
+        mapOf(
+            "models" to "",
+            "apis" to "false",
+            "supportingFiles" to "false",
+            "modelTests" to "false",
+            "modelDocs" to "false"
         )
     )
 }

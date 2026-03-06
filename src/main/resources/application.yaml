@@ -17,4 +17,4 @@ app:
       connect-attempts: 5
     auth-service:
       max-parallel-requests: 100
-      base-path: "http://localhost:8080/auth-service"
+      endpoint: "http://localhost:8080/auth-sevice/charging-sessions"

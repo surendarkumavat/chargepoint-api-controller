@@ -59,7 +59,8 @@ Need to use one of:
     - With: Task Queueing and Async API Invocation
  - Returning: Charging Session Authorization using callback url
     - And: Decision persistence in DB for debugging
- - Bondaries: no request Auth and throttling at controller level
+ - Boundaries: 
+   - no request Auth and throttling at controller level
 
 See [here](Assignment.md) for full Assignment Details
 ### Implementation Approach
@@ -70,6 +71,8 @@ User Agent -> (Api Controller: Controller -> Service -> (Auth Service, DB))
 v2: Daemon Process dispatching requests to Auth Service
 
 User Agent -> (Api Controller: Controller -> Service -> (Worker -> (Auth Service, DB))
+
+v3: Fixes as per Review Comments 1 (See Change Log below)
 
 #### General Approach:
 1. Request Lands on Contorller
@@ -162,3 +165,19 @@ Conceptually, api-controller service for hitting auth service can be scaled in 2
 2. Horizontally -> In case, we reach upper limit per instance, we can horizontally scale by having more instances of api-controller. (Ofcource DB will have to be a proper DB and not the in-memory one we are using to simulate DB interaction currently)
 
 We can even have a scaling rule for auth service based on hit load and hit load we can control exclusively from api-controller in the above 2 ways
+
+### Change Log
+#### 2026.03.06 - Review 1 Feedback:
+1. Callback does not get the passed in driver-token. Instead, it contains the callback url
+   - Silly Copy Paste Mistake.
+   - Fixed and added asserts for all fields in Integration Tests
+2. Callback gets unknown status for valid requests
+   - Timeout scenario is implemented using HttpClient Timeout configuration causing TimeoutExceptions to be thrown by client. 
+   - All auth service call exceptions are caught and status is communicated as 'unknown' if there is any issue contacting auth service
+   - Also, auth-service is assumed to be provided as an external service, and its url is to be configured in the application.yaml file. Currently it is set to http://localhost:8080/auth-sevice/charging-sessions
+   - In case it needs to be implemented as an additional module as part of the current assignment then let me know.
+3. Callback is not called for invalid Driver Token. Currently, driver token validation is part of API message validation in controller. Make it part of Business Validation and report invalid status to callback
+   - Request Body Validations are generally part of API gateway where we provide the API spec with all field constraints
+   - In case the application wants to get a chance at such validations and do some additional processing then the constraints need to be relaxed from spec so that it is not rejected by the gateway.
+   - Certain validations like uuid and callback validation should still be part of API/request validation as the request processing might not be possible at all if they are invalid.
+   - For now, have moved driver token validation to be processed asynchronously before calling the auth service.

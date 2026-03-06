@@ -18,7 +18,6 @@ import java.util.*
 internal fun Application.chargingSessionRoutes(service: ChargingSessionService) {
     routing {
         post("/charging-sessions") {
-            val driverRegex = Regex("^[\\w-._~]{20,80}$")
             val body: ChargingSessionsPostRequest = call.receive()
             val correlationId: UUID = UUID.fromString(call.callId)
 
@@ -27,9 +26,6 @@ internal fun Application.chargingSessionRoutes(service: ChargingSessionService) 
             } catch (e: IllegalArgumentException) {
                 throw BadRequestException("Invalid charging station ID")
             }
-
-            if (!driverRegex.matches(body.driverToken))
-                throw BadRequestException("Invalid Driver Token")
 
             try {
                 val uri = URI(body.callbackUrl)
@@ -51,7 +47,7 @@ internal fun Application.chargingSessionRoutes(service: ChargingSessionService) 
             service.initiateSession(dto)
 
             val response = ChargingSessionsPost202Response(
-                status = ChargingSessionsPost202Response.Status.valueOf(dto.status),
+                status = ChargingSessionsPost202Response.Status.accepted,
                 message = "Request is being processed asynchronously. The result will be sent to the provided callback URL."
             )
             call.respond(status = HttpStatusCode.Accepted, message = response)
