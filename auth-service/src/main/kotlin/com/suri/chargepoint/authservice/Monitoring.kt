@@ -1,4 +1,4 @@
-package com.suri.chargepoint.utils.authservice
+package com.suri.chargepoint.authservice
 
 import com.codahale.metrics.Slf4jReporter
 import io.ktor.http.*

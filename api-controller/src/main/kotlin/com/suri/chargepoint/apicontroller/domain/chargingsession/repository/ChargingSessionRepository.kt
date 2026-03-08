@@ -1,6 +1,6 @@
-package com.suri.chargepoint.domain.chargingsession.repository
+package com.suri.chargepoint.apicontroller.domain.chargingsession.repository
 
-import com.suri.chargepoint.domain.chargingsession.dto.ChargingSessionDto
+import com.suri.chargepoint.apicontroller.domain.chargingsession.dto.ChargingSessionDto
 
 interface ChargingSessionRepository {
     suspend fun sessionAuthRequestExists(session: ChargingSessionDto): Boolean

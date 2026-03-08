@@ -1,4 +1,4 @@
-package com.suri.chargepoint.domain.chargingsession.dto
+package com.suri.chargepoint.apicontroller.domain.chargingsession.dto
 
 import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSessionsPost200Response
 import java.util.*

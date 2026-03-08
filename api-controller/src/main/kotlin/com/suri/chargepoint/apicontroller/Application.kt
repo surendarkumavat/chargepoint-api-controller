@@ -1,12 +1,12 @@
 package com.suri.chargepoint.apicontroller
 
-import com.suri.chargepoint.domain.chargingsession.client.ChargingSessionAuthServiceApiWrapper
-import com.suri.chargepoint.domain.chargingsession.repository.ChargingSessionRepository
-import com.suri.chargepoint.domain.chargingsession.repository.ChargingSessionRepositoryImpl
-import com.suri.chargepoint.domain.chargingsession.worker.AsyncAuthServiceWorker
+import com.suri.chargepoint.apicontroller.domain.chargingsession.client.ChargingSessionAuthServiceApiWrapper
+import com.suri.chargepoint.apicontroller.domain.chargingsession.repository.ChargingSessionRepository
+import com.suri.chargepoint.apicontroller.domain.chargingsession.repository.ChargingSessionRepositoryImpl
+import com.suri.chargepoint.apicontroller.domain.chargingsession.worker.AsyncAuthServiceWorker
 import io.ktor.server.application.*
 import io.ktor.server.config.*
-import io.ktor.server.netty.EngineMain
+import io.ktor.server.netty.*
 
 
 fun main(args: Array<String>) {

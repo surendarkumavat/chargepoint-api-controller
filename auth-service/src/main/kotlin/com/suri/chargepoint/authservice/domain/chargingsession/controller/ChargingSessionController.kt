@@ -1,10 +1,10 @@
-package com.suri.chargepoint.domain.chargingsession.controller
+package com.suri.chargepoint.authservice.domain.chargingsession.controller
 
 
-import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSessionsPostRequest
-import com.suri.chargepoint.apicontroller.server.chargingsession.models.ChargingSessionsPost202Response
-import com.suri.chargepoint.domain.chargingsession.dto.ChargingSessionDto
-import com.suri.chargepoint.domain.chargingsession.service.ChargingSessionService
+import com.suri.chargepoint.authservice.domain.chargingsession.dto.ChargingSessionDto
+import com.suri.chargepoint.authservice.domain.chargingsession.service.ChargingSessionService
+import com.suri.chargepoint.authservice.server.chargingsession.models.ChargingSessionsPost200Response
+import com.suri.chargepoint.authservice.server.chargingsession.models.ChargingSessionsPostRequest
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
@@ -14,6 +14,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import java.net.URI
 import java.util.*
+
+val DRIVER_TOKEN_REGEX = Regex("^[\\w-._~]{20,80}$")
 
 internal fun Application.chargingSessionRoutes(service: ChargingSessionService) {
     routing {
@@ -36,6 +38,9 @@ internal fun Application.chargingSessionRoutes(service: ChargingSessionService) 
                 throw BadRequestException("Invalid callback url")
             }
 
+            if (!DRIVER_TOKEN_REGEX.matches(body.driverToken))
+                throw BadRequestException("Invalid Driver Token")
+
             val dto =
                 ChargingSessionDto(
                     correlationId = correlationId,
@@ -44,13 +49,14 @@ internal fun Application.chargingSessionRoutes(service: ChargingSessionService) 
                     body.callbackUrl
                 )
 
-            service.initiateSession(dto)
+            service.authorizeSession(dto)
 
-            val response = ChargingSessionsPost202Response(
-                status = ChargingSessionsPost202Response.Status.accepted,
-                message = "Request is being processed asynchronously. The result will be sent to the provided callback URL."
+            val response = ChargingSessionsPost200Response(
+                stationId = dto.stationId.toString(),
+                driverToken = dto.driverId,
+                status = ChargingSessionsPost200Response.Status.allowed,
             )
-            call.respond(status = HttpStatusCode.Accepted, message = response)
+            call.respond(status = HttpStatusCode.OK, message = response)
         }
     }
 }

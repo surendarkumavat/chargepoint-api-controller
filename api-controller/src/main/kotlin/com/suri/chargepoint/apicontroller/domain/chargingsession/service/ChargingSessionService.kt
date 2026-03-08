@@ -1,8 +1,8 @@
-package com.suri.chargepoint.domain.chargingsession.service
+package com.suri.chargepoint.apicontroller.domain.chargingsession.service
 
-import com.suri.chargepoint.domain.chargingsession.dto.ChargingSessionDto
-import com.suri.chargepoint.domain.chargingsession.repository.ChargingSessionRepository
-import com.suri.chargepoint.domain.chargingsession.worker.AsyncAuthServiceWorker
+import com.suri.chargepoint.apicontroller.domain.chargingsession.dto.ChargingSessionDto
+import com.suri.chargepoint.apicontroller.domain.chargingsession.repository.ChargingSessionRepository
+import com.suri.chargepoint.apicontroller.domain.chargingsession.worker.AsyncAuthServiceWorker
 
 internal class ChargingSessionService(
     private val repo: ChargingSessionRepository,

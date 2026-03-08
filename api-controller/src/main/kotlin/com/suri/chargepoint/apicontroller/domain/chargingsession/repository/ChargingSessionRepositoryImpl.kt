@@ -1,9 +1,9 @@
-package com.suri.chargepoint.domain.chargingsession.repository
+package com.suri.chargepoint.apicontroller.domain.chargingsession.repository
 
-import com.suri.chargepoint.domain.chargingsession.dao.ChargingSessionDAO
-import com.suri.chargepoint.domain.chargingsession.dao.ChargingSessionTable
-import com.suri.chargepoint.domain.chargingsession.dao.suspendTransaction
-import com.suri.chargepoint.domain.chargingsession.dto.ChargingSessionDto
+import com.suri.chargepoint.apicontroller.domain.chargingsession.dao.ChargingSessionDAO
+import com.suri.chargepoint.apicontroller.domain.chargingsession.dao.ChargingSessionTable
+import com.suri.chargepoint.apicontroller.domain.chargingsession.dao.suspendTransaction
+import com.suri.chargepoint.apicontroller.domain.chargingsession.dto.ChargingSessionDto
 import org.jetbrains.exposed.sql.and
 
 class ChargingSessionRepositoryImpl : ChargingSessionRepository {

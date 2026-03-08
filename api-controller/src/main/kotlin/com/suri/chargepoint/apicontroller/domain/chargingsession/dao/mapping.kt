@@ -1,6 +1,6 @@
-package com.suri.chargepoint.domain.chargingsession.dao
+package com.suri.chargepoint.apicontroller.domain.chargingsession.dao
 
-import com.suri.chargepoint.domain.chargingsession.dto.ChargingSessionDto
+import com.suri.chargepoint.apicontroller.domain.chargingsession.dto.ChargingSessionDto
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass

@@ -1,4 +1,4 @@
-package com.suri.chargepoint.utils.authservice
+package com.suri.chargepoint.authservice
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -12,7 +12,7 @@ import io.ktor.server.config.*
 internal fun configureHttpClient(config: ApplicationConfig): HttpClient {
 
     //Configure Http Clients
-    val httpConfig = config.config("app.api-controller.http-client")
+    val httpConfig = config.config("app.auth-service.http-client")
     val httpClientConfig = HttpClientConfig(
         maxConnectionsCount = httpConfig.propertyOrNull("max-connections-count")?.getAs() ?: 1000,
         maxConnectionsPerRoute = httpConfig.propertyOrNull("max-connections-per-route")?.getAs() ?: 100,
@@ -56,7 +56,7 @@ data class HttpClientConfig(
     val keepAliveTime: Long = 5000,
     val connectTimeout: Long = 5000,
     val socketTimeout: Long = 5000,
-    val requestTimeout: Long = 10_000,
+    val requestTimeout: Long = 5000,
     val connectAttempts: Int = 5,
     val maxConnectionsPerRoute: Int = 100
 )

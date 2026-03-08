@@ -1,10 +1,10 @@
-package com.suri.chargepoint.domain.chargingsession.controller
+package com.suri.chargepoint.apicontroller.domain.chargingsession.controller
 
 
 import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSessionsPostRequest
+import com.suri.chargepoint.apicontroller.domain.chargingsession.dto.ChargingSessionDto
+import com.suri.chargepoint.apicontroller.domain.chargingsession.service.ChargingSessionService
 import com.suri.chargepoint.apicontroller.server.chargingsession.models.ChargingSessionsPost202Response
-import com.suri.chargepoint.domain.chargingsession.dto.ChargingSessionDto
-import com.suri.chargepoint.domain.chargingsession.service.ChargingSessionService
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*

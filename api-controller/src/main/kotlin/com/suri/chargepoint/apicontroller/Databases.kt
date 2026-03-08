@@ -1,6 +1,6 @@
 package com.suri.chargepoint.apicontroller
 
-import com.suri.chargepoint.domain.chargingsession.dao.ChargingSessionTable
+import com.suri.chargepoint.apicontroller.domain.chargingsession.dao.ChargingSessionTable
 import io.ktor.server.application.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils

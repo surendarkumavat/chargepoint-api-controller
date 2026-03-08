@@ -1,10 +1,8 @@
-package com.suri.chargepoint.utils.authservice
+package com.suri.chargepoint.authservice
 
-import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSessionsPostDefaultResponse
-import com.suri.chargepoint.domain.chargingsession.controller.chargingSessionRoutes
-import com.suri.chargepoint.domain.chargingsession.repository.ChargingSessionRepository
-import com.suri.chargepoint.domain.chargingsession.service.ChargingSessionService
-import com.suri.chargepoint.domain.chargingsession.worker.AsyncAuthServiceWorker
+import com.suri.chargepoint.authservice.domain.chargingsession.controller.chargingSessionRoutes
+import com.suri.chargepoint.authservice.domain.chargingsession.service.ChargingSessionService
+import com.suri.chargepoint.authservice.server.chargingsession.models.ChargingSessionsPostDefaultResponse
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -16,7 +14,7 @@ import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
-internal fun Application.configureRouting(repo: ChargingSessionRepository, worker: AsyncAuthServiceWorker) {
+internal fun Application.configureRouting() {
     install(ContentNegotiation) {
         json()
     }
@@ -47,9 +45,6 @@ internal fun Application.configureRouting(repo: ChargingSessionRepository, worke
         }
     }
     chargingSessionRoutes(
-        ChargingSessionService(
-            repo,
-            worker
-        )
+        ChargingSessionService()
     )
 }

@@ -1,10 +1,10 @@
 package com.suri.chargepoint.apicontroller
 
 import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSessionsPostDefaultResponse
-import com.suri.chargepoint.domain.chargingsession.controller.chargingSessionRoutes
-import com.suri.chargepoint.domain.chargingsession.repository.ChargingSessionRepository
-import com.suri.chargepoint.domain.chargingsession.service.ChargingSessionService
-import com.suri.chargepoint.domain.chargingsession.worker.AsyncAuthServiceWorker
+import com.suri.chargepoint.apicontroller.domain.chargingsession.controller.chargingSessionRoutes
+import com.suri.chargepoint.apicontroller.domain.chargingsession.repository.ChargingSessionRepository
+import com.suri.chargepoint.apicontroller.domain.chargingsession.service.ChargingSessionService
+import com.suri.chargepoint.apicontroller.domain.chargingsession.worker.AsyncAuthServiceWorker
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*

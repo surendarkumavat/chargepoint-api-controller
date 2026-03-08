@@ -1,8 +1,8 @@
-package com.suri.chargepoint.domain.chargingsession.client
+package com.suri.chargepoint.apicontroller.domain.chargingsession.client
 
 import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSessionsPost200Response
 import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSessionsPostRequest
-import com.suri.chargepoint.domain.chargingsession.dto.ChargingSessionDto
+import com.suri.chargepoint.apicontroller.domain.chargingsession.dto.ChargingSessionDto
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*

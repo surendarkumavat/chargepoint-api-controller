@@ -1,8 +1,8 @@
-package com.suri.chargepoint.domain.chargingsession.worker
+package com.suri.chargepoint.apicontroller.domain.chargingsession.worker
 
-import com.suri.chargepoint.domain.chargingsession.client.ChargingSessionAuthServiceApiWrapper
-import com.suri.chargepoint.domain.chargingsession.dto.ChargingSessionDto
-import com.suri.chargepoint.domain.chargingsession.repository.ChargingSessionRepository
+import com.suri.chargepoint.apicontroller.domain.chargingsession.client.ChargingSessionAuthServiceApiWrapper
+import com.suri.chargepoint.apicontroller.domain.chargingsession.dto.ChargingSessionDto
+import com.suri.chargepoint.apicontroller.domain.chargingsession.repository.ChargingSessionRepository
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import mu.KotlinLogging
@@ -14,8 +14,6 @@ internal class AsyncAuthServiceWorker(
     private val apiWrapper: ChargingSessionAuthServiceApiWrapper,
     private val maxParallelRequests: Int = 100
 ) {
-    val driverRegex = Regex("^[\\w-._~]{20,80}$")
-
     val queue = Channel<ChargingSessionDto>(Channel.UNLIMITED)
 
     private val scope = CoroutineScope(
@@ -23,7 +21,7 @@ internal class AsyncAuthServiceWorker(
     )
 
     fun start() {
-        repeat(100) { // number of concurrent workers
+        repeat(maxParallelRequests) { // number of concurrent workers
             scope.launch {
                 for (dto in queue) {
                     try {
@@ -37,17 +35,10 @@ internal class AsyncAuthServiceWorker(
     }
 
     suspend fun processSessionAuthRequest(dto: ChargingSessionDto) {
-        if (validateRequest(dto))
-            dto.status = apiWrapper.authorize(dto)
-        else
-            dto.status = "invalid"
+        dto.status = apiWrapper.authorize(dto)
 
         apiWrapper.triggerCallBack(dto)
         repo.updateSessionStatus(dto)
-    }
-
-    fun validateRequest(dto: ChargingSessionDto): Boolean {
-        return driverRegex.matches(dto.driverId)
     }
 
     suspend fun enqueueChargingSession(dto: ChargingSessionDto) {
