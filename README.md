@@ -6,15 +6,16 @@
 
 To build or run the project, use one of the following tasks:
 
-| Task                                    | Description                                                          |
-|-----------------------------------------|----------------------------------------------------------------------|
-| `./gradlew test`                        | Run the tests                                                        |
-| `./gradlew build`                       | Build everything                                                     |
-| `./gradlew buildFatJar`                 | Build an executable JAR of the server with all dependencies included |
-| `./gradlew buildImage`                  | Build the docker image to use with the fat JAR                       |
-| `./gradlew publishImageToLocalRegistry` | Publish the docker image locally                                     |
-| `./gradlew run`                         | Run the server                                                       |
-| `./gradlew runDocker`                   | Run using the local docker image                                     |
+| Task                                                                                                                                                                                    | Description                                                          |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| `./gradlew test`                                                                                                                                                                        | Run the tests                                                        |
+| `./gradlew build`                                                                                                                                                                       | Build everything                                                     |
+| `./gradlew buildFatJar`                                                                                                                                                                 | Build an executable JAR of the server with all dependencies included |
+| `./gradlew buildImage`                                                                                                                                                                  | Build the docker image to use with the fat JAR                       |
+| `./gradlew publishImageToLocalRegistry`                                                                                                                                                 | Publish the docker image locally                                     |
+| `./gradlew run`                                                                                                                                                                         | Run the server                                                       |
+| `./gradlew run --args="-P:app.api-controller.auth-service.endpoint='http://localhost:8080/auth-sevice/charging-sessions' -P:app.api-controller.auth-service.max-parallel-requests=100"` | Run the server with the overidden app config                         |
+| `./gradlew runDocker`                                                                                                                                                                   | Run using the local docker image                                     |
 
 If the server starts successfully, you'll see the following output:
 
@@ -24,6 +25,16 @@ If the server starts successfully, you'll see the following output:
 ```
 
 ## Implementation
+### Assigment:
+- Given: An Internal (internal to Org but external to API Controller) ACL based Auth Service
+- Implement: A public api controller
+   - With: Task Queueing and Async API Invocation
+- Returning: Charging Session Authorization using callback url
+   - And: Decision persistence in DB for debugging
+   - And: Handle Auth Service Timeout (assume 5s) by returning `unknown` status
+- Boundaries:
+   - no request Auth and throttling at controller level
+
 ### Public API Details
 
 Initiate Charging Session API: POST http://localhost:8080/charging-sessions
@@ -45,7 +56,28 @@ Expected Response: HTTP 202
 }
 ```
 
+### App Configurations:
+The following configs are defined in [application.yaml](src/main/resources/application.yaml):
+```yaml
+app:
+  api-controller:
+    http-client:
+      max-connections-count: 1000
+      max-connections-per-route: 100
+      request-timeout: 5000
+      connect-timeout: 5000
+      socket-timeout: 5000
+      keep-alive-time: 5000
+      connect-attempts: 5
+    auth-service:
+      max-parallel-requests: 100
+      endpoint: "http://localhost:8080/auth-sevice/charging-sessions"
+```
+- Auth Service Timeouts and Endpoints are configured using the above configurations. Adapt as per needs
+- To override any of the above configurations while launching the app with Gradle, use the `--args="-P:app.."` commandline parameter as demonstrated [above](#building--running).
+
 ## Work Notes
+
 ### Technology Selection
 
 Need to use one of:
@@ -53,14 +85,6 @@ Need to use one of:
  - Python - Past Experience with REST API development using Flask, Apache, mod-wsgi. Multi-processing using container, JIT and routine parallelization using numba. Not relevant for current assignment. Need to learn on Queuing and Pooled Parallelization.
  - Kotlin - No experience. Similarity with Java. But new concepts for parallelization. But ecosystem should be similar. Selecting. Using ktor framework since chargepoint uses it and at first glance seems similar to Boot
 
-### Assigment:
- - Given: An Internal ACL based Auth Service
- - Implement: A public api controller 
-    - With: Task Queueing and Async API Invocation
- - Returning: Charging Session Authorization using callback url
-    - And: Decision persistence in DB for debugging
- - Boundaries: 
-   - no request Auth and throttling at controller level
 
 See [here](Assignment.md) for full Assignment Details
 ### Implementation Approach
