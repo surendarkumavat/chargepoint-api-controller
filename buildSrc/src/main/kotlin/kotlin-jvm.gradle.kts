@@ -11,13 +11,10 @@ plugins {
 
 kotlin {
     // Use a specific Java version to make it easier to work in different environments.
-    jvmToolchain(25)
+    jvmToolchain(21)
 }
 
 tasks.withType<Test>().configureEach {
-    // Configure all test Gradle tasks to use JUnitPlatform.
-    useJUnitPlatform()
-
     // Log information about all test results, not only the failed ones.
     testLogging {
         events(
@@ -26,4 +23,22 @@ tasks.withType<Test>().configureEach {
             TestLogEvent.SKIPPED
         )
     }
+
+    addTestListener(object : TestListener {
+        override fun beforeSuite(suite: TestDescriptor) = Unit
+        override fun beforeTest(testDescriptor: TestDescriptor) = Unit
+        override fun afterTest(testDescriptor: TestDescriptor, result: TestResult) = Unit
+
+        override fun afterSuite(suite: TestDescriptor, result: TestResult) {
+            if (suite.parent == null) {
+                println(
+                    "Results: ${result.resultType} " +
+                            "(${result.testCount} tests, " +
+                            "${result.successfulTestCount} passed, " +
+                            "${result.failedTestCount} failed, " +
+                            "${result.skippedTestCount} skipped)"
+                )
+            }
+        }
+    })
 }

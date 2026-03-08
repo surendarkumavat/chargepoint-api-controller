@@ -83,6 +83,7 @@ class ChargingSessionInt {
         setupTestApp(repo, client)
 
         val callbackBody = CompletableDeferred<JsonObject>()
+        val authServiceBody = CompletableDeferred<JsonObject>()
 
         externalServices {
             hosts("http://client") {
@@ -98,13 +99,32 @@ class ChargingSessionInt {
                     }
                 }
             }
+            hosts("http://auth-service") {
+                install(io.ktor.server.plugins.contentnegotiation.ContentNegotiation) {
+                    json()
+                }
+                routing {
+                    post("/charging-sessions") {
+                        val body = Json.parseToJsonElement(call.receiveText()).jsonObject
+                        authServiceBody.complete(body)
+
+                        call.respond(
+                            ChargingSessionsPost200Response(
+                                body["station_id"]?.jsonPrimitive?.content,
+                                body["driver_token"]?.jsonPrimitive?.content,
+                                ChargingSessionsPost200Response.Status.invalid
+                            )
+                        )
+                    }
+                }
+            }
         }
 
-        val stationId = UUID.randomUUID()
+        val stationId = UUID.randomUUID().toString()
         val driverId = "abc123_"
         val callBackUrl = "http://client/callback"
 
-        val dto = ChargingSessionsPostRequest(stationId.toString(), driverId, callBackUrl)
+        val dto = ChargingSessionsPostRequest(stationId, driverId, callBackUrl)
         val response = client.post("/charging-sessions") {
             contentType(ContentType.Application.Json)
             setBody(dto)
@@ -114,6 +134,12 @@ class ChargingSessionInt {
         val results = response.body<ChargingSessionsPost202Response>()
         assertEquals(HttpStatusCode.Accepted, response.status)
         assertEquals("accepted", results.status.toString())
+
+        // Assert Auth Service Data
+        val bodySentToAuthService = authServiceBody.await()
+        assertEquals(callBackUrl, bodySentToAuthService["callback_url"]?.jsonPrimitive?.content)
+        assertEquals(stationId, bodySentToAuthService["station_id"]?.jsonPrimitive?.content)
+        assertEquals(driverId, bodySentToAuthService["driver_token"]?.jsonPrimitive?.content)
 
         //Validate Invalid response sent to callback
         val bodySentToExternal = callbackBody.await()

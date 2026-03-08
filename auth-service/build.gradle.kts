@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.ktor)
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.openapi.generator)
+    id("buildsrc.convention.kotlin-jvm")
 }
 
 application {

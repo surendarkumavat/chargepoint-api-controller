@@ -32,7 +32,7 @@ class ChargingSessionServiceTest {
             repo,
             worker
         )
-        coEvery { apiWrapper.authorize(any()) } returns "allowed"
+        coEvery { apiWrapper.authorize(any()) } returns "invalid"
         coEvery { apiWrapper.triggerCallBack(any()) } returns Unit
 
         val correlationId = UUID.randomUUID()
