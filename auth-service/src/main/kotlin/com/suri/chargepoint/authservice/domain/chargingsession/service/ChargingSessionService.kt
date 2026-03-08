@@ -3,7 +3,6 @@ package com.suri.chargepoint.authservice.domain.chargingsession.service
 import com.suri.chargepoint.authservice.domain.chargingsession.controller.DRIVER_TOKEN_REGEX
 import com.suri.chargepoint.authservice.domain.chargingsession.dto.ChargingSessionDto
 import com.suri.chargepoint.authservice.server.chargingsession.models.ChargingSessionsPost200Response.Status
-import io.ktor.server.plugins.BadRequestException
 import kotlinx.coroutines.delay
 import java.net.URI
 

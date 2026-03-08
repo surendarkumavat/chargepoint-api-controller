@@ -83,7 +83,8 @@ tasks.register<GenerateTask>("generateControllerAuthServiceApi") {
             "featureCORS" to "false",
             "featureCompression" to "false",
             "featureHSTS" to "false",
-            "featureConditionalHeaders" to "false")
+            "featureConditionalHeaders" to "false"
+        )
     )
 
 

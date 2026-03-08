@@ -19,11 +19,13 @@ internal class ChargingSessionAuthServiceApiWrapper(
         return try {
             val response = client.post(authServiceUrl) {
                 contentType(ContentType.Application.Json)
-                setBody(ChargingSessionsPostRequest(
-                    stationId = dto.stationId.toString(),
-                    driverToken = dto.driverId,
-                    callbackUrl = dto.callbackUrl
-                ))
+                setBody(
+                    ChargingSessionsPostRequest(
+                        stationId = dto.stationId.toString(),
+                        driverToken = dto.driverId,
+                        callbackUrl = dto.callbackUrl
+                    )
+                )
             }
             val results = response.body<ChargingSessionsPost200Response>()
             results.status.toString()

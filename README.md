@@ -1,5 +1,7 @@
 # API Controller Async Service
+
 ## System Pre-requisites
+
 - Java 25
 
 ## Building & Running
@@ -25,21 +27,24 @@ If the server starts successfully, you'll see the following output:
 ```
 
 ## Implementation
+
 ### Assigment:
+
 - Given: An Internal (internal to Org but external to API Controller) ACL based Auth Service
 - Implement: A public api controller
-   - With: Task Queueing and Async API Invocation
+    - With: Task Queueing and Async API Invocation
 - Returning: Charging Session Authorization using callback url
-   - And: Decision persistence in DB for debugging
-   - And: Handle Auth Service Timeout (assume 5s) by returning `unknown` status
+    - And: Decision persistence in DB for debugging
+    - And: Handle Auth Service Timeout (assume 5s) by returning `unknown` status
 - Boundaries:
-   - no request Auth and throttling at controller level
+    - no request Auth and throttling at controller level
 
 ### Public API Details
 
 Initiate Charging Session API: POST http://localhost:8080/charging-sessions
 
 Expected Body:
+
 ```
 {
   "station_id": "123e4567-e89b-12d3-a456-426614174000",
@@ -49,6 +54,7 @@ Expected Body:
 ```
 
 Expected Response: HTTP 202
+
 ```
 {
     "status": "accepted",
@@ -57,7 +63,9 @@ Expected Response: HTTP 202
 ```
 
 ### App Configurations:
+
 The following configs are defined in [application.yaml](src/main/resources/application.yaml):
+
 ```yaml
 app:
   api-controller:
@@ -73,21 +81,28 @@ app:
       max-parallel-requests: 100
       endpoint: "http://localhost:8080/auth-sevice/charging-sessions"
 ```
+
 - Auth Service Timeouts and Endpoints are configured using the above configurations. Adapt as per needs
-- To override any of the above configurations while launching the app with Gradle, use the `--args="-P:app.."` commandline parameter as demonstrated [above](#building--running).
+- To override any of the above configurations while launching the app with Gradle, use the `--args="-P:app.."`
+  commandline parameter as demonstrated [above](#building--running).
 
 ## Work Notes
 
 ### Technology Selection
 
 Need to use one of:
- - PHP - No experience
- - Python - Past Experience with REST API development using Flask, Apache, mod-wsgi. Multiprocessing using container, JIT and routine parallelization using numba. Not relevant for current assignment. Need to learn on Queuing and Pooled Parallelization.
- - Kotlin - No experience. Similarity with Java. But new concepts for parallelization. But ecosystem should be similar. Selecting. Using ktor framework since chargepoint uses it and at first glance seems similar to Boot
 
+- PHP - No experience
+- Python - Past Experience with REST API development using Flask, Apache, mod-wsgi. Multiprocessing using container, JIT
+  and routine parallelization using numba. Not relevant for current assignment. Need to learn on Queuing and Pooled
+  Parallelization.
+- Kotlin - No experience. Similarity with Java. But new concepts for parallelization. But ecosystem should be similar.
+  Selecting. Using ktor framework since chargepoint uses it and at first glance seems similar to Boot
 
 See [here](Assignment.md) for full Assignment Details
+
 ### Implementation Approach
+
 v1: Synchronous flow
 
 User Agent → (Api Controller: Controller → Service → (Auth Service, DB))
@@ -99,110 +114,163 @@ User Agent → (Api Controller: Controller → Service → (Worker → (Auth Ser
 v3: Fixes as per Review Comments 1 (See Change Log below)
 
 #### General Approach:
+
 1. Request Lands on Controller
-2. Request Validation in Controller (We wanted Open API Generated code to take care of this. Unfortunately it doesn't so we implement our own)
-3. Model to Dto. 
-   - Dto contains an additional correlationId field to be used for dispatching to worker
+2. Request Validation in Controller (We wanted Open API Generated code to take care of this. Unfortunately it doesn't so
+   we implement our own)
+3. Model to Dto.
+    - Dto contains an additional correlationId field to be used for dispatching to worker
 4. Service Call with Dto
 5. Check if a request is already queued by looking up in DB with accepted state with (station id, driver id, "accepted")
-   - if exists Return
-   - else
+    - if exists Return
+    - else
 6. Create DB Record for request using request correlation id (to be used for updating later)
 7. Dispatch Job to worker
-   - Custom CoRoutine Scope of type Service Job and Dispatcher.IO
+    - Custom CoRoutine Scope of type Service Job and Dispatcher.IO
 8. Once scheduled:
-   1. Hit Auth Service API
-   2. TimeOut scenario handled with request timeout configurations for HttpClient
-   3. Update correlation id record with decision or unknown in case of error
-   4. Hit callback
+    1. Hit Auth Service API
+    2. TimeOut scenario handled with request timeout configurations for HttpClient
+    3. Update correlation id record with decision or unknown in case of error
+    4. Hit callback
 
 ### Tasks:
-#### Select Project Structure
-Options:
- - gradle multi module
- - ktor multi module
- - single module
 
- ⇒ Since the use case is of an api controller, Gradle multi-module seems irrelevant. Also, we want to target microservices architecture as it is the De-facto standard for REST interaction
- ⇒ Selecting ktor multi-module as this api controller may need to offer similar functionality for other use cases.
+#### Select Project Structure
+
+Options:
+
+- gradle multi module
+- ktor multi module
+- single module
+
+⇒ Since the use case is of an api controller, Gradle multi-module seems irrelevant. Also, we want to target
+microservices architecture as it is the De-facto standard for REST interaction
+⇒ Selecting ktor multi-module as this api controller may need to offer similar functionality for other use cases.
 
 #### API Approach
+
 API/Contract First all the way!!
 
 Since we define the API first, let's try to use Code Generators for Boiler Plate API interface and Model Code
 Yes!! OpenAPI Codegen Available for ktor. Catch: Only targets ktor v2. Let's try to use it
 
-An excruciating hour late, generated Controller/Route and API Code is useless. Also, server models do no have @SerializeName for customizing JSON property representation. Server code completely useless!
+An excruciating hour late, generated Controller/Route and API Code is useless. Also, server models do no have
+@SerializeName for customizing JSON property representation. Server code completely useless!
 
 Client code seems usable with models generated as expected.
 
 #### Data Store
-SQL vs NoSql → This use case seems quite simple. we can use either but the approach we selected needs to update the request on completion. So choosing SQL. Specifically in memory H2 DB
+
+SQL vs NoSql → This use case seems quite simple. we can use either but the approach we selected needs to update the
+request on completion. So choosing SQL. Specifically in memory H2 DB
 
 #### DAO
+
 DB interaction is quite simple. Since we are learning, let's try to use ORM abstraction.
 
-Exposed seems to be available. ktor generator and ktor server documentation has a neat guide helping us get started. The only catch is although v1 is available, example code still uses 0.6xx. Tried to upgrade to latest but example code no longer works and there a quite a lot of adjustments needed. So falling back to 0.6 for quick start.
+Exposed seems to be available. ktor generator and ktor server documentation has a neat guide helping us get started. The
+only catch is although v1 is available, example code still uses 0.6xx. Tried to upgrade to latest but example code no
+longer works and there a quite a lot of adjustments needed. So falling back to 0.6 for quick start.
 
 #### Async Processing
-First glance: Need to Use Co-routines. ktor also uses coroutines for request processing that is why all methods called in a request flow need to be `suspend`
+
+First glance: Need to Use Co-routines. ktor also uses coroutines for request processing that is why all methods called
+in a request flow need to be `suspend`
 
 Need something akin to ExecutorService in Java with Unbounded Queue.
 
-Custom Coroutine Scopes bound to IO Dispatchers(Backing Threads) and type Service Job seem to be the answer. ktor also has its own coroutine scopes. Some are bound to application, some to request and there is a global scope. global (from experience everywhere else) is strongly discouraged.
+Custom Coroutine Scopes bound to IO Dispatchers(Backing Threads) and type Service Job seem to be the answer. ktor also
+has its own coroutine scopes. Some are bound to application, some to request and there is a global scope. global (from
+experience everywhere else) is strongly discouraged.
 
-On to the queue, we need to ensure that the requests are not rate-limited. so won't use bounded. can use some blocking queues from java world. However, found Channel abstraction that is built exactly for this. By name, seems irrelevant but came across it again and again in various forums and threads. So finally looked at the API and was convinced about it being key to our case
+On to the queue, we need to ensure that the requests are not rate-limited. so won't use bounded. can use some blocking
+queues from java world. However, found Channel abstraction that is built exactly for this. By name, seems irrelevant but
+came across it again and again in various forums and threads. So finally looked at the API and was convinced about it
+being key to our case
 
 ### Testing
+
 #### Unit
-Service class went through multiple iterations, first to get a working code, next to make it DI capable, and finally while writing cases to make it easier to test by accepting the mocks. Also, makes our class design more consistent and aligned to standards
-Now all we wanted was Mockito. Checked, Mockito available but not kotlin native. Simple google search for mock kotlin takes us to mockk. And that's what we need.
+
+Service class went through multiple iterations, first to get a working code, next to make it DI capable, and finally
+while writing cases to make it easier to test by accepting the mocks. Also, makes our class design more consistent and
+aligned to standards
+Now all we wanted was Mockito. Checked, Mockito available but not kotlin native. Simple google search for mock kotlin
+takes us to mockk. And that's what we need.
 
 2 simple unit test cases to test the Service class:
-1. Test happy flow by mocking api client and introspecting client call to confirm the right status is submitted to client.
-   - Turns out mocking client is not that easy. Recommendation everywhere is to wrap it and mock the wrapper. Also, made code simpler for client calls.
-2. Test error flow by throwing exception on mocked method call of client and expect unknown status in callback call from wrapper
+
+1. Test happy flow by mocking api client and introspecting client call to confirm the right status is submitted to
+   client.
+    - Turns out mocking client is not that easy. Recommendation everywhere is to wrap it and mock the wrapper. Also,
+      made code simpler for client calls.
+2. Test error flow by throwing exception on mocked method call of client and expect unknown status in callback call from
+   wrapper
 
 #### Manual
+
 Tested by hitting api-controller public api using talend API tester.
 Scenarios:
-1. Happy Case: Got 200. Realized this was not the right status code for async. changed to 202. Checked logs and found following:
-   - Callback (Using HttpClient) failing with JSON parsing error. installed content negotiation plugin to httpclient
-   - Auth Service Call (Using OpenAPI generated code) failing with similar error.
-   - Not straightforward to inject our own httplient into generated client.
-   - But it does provide us with lambda to configure client engine and client config
-   - Created a common engine config for both the calls and externalized the timeout configs to application.yaml
-   - callbacks and auth service calls still fail due to mock URLs configured but that error is expected. Need to further test using Integration Test
+
+1. Happy Case: Got 200. Realized this was not the right status code for async. changed to 202. Checked logs and found
+   following:
+    - Callback (Using HttpClient) failing with JSON parsing error. installed content negotiation plugin to httpclient
+    - Auth Service Call (Using OpenAPI generated code) failing with similar error.
+    - Not straightforward to inject our own httplient into generated client.
+    - But it does provide us with lambda to configure client engine and client config
+    - Created a common engine config for both the calls and externalized the timeout configs to application.yaml
+    - callbacks and auth service calls still fail due to mock URLs configured but that error is expected. Need to
+      further test using Integration Test
 2. Invalid input: sent an invalid JSON. Got an error response with text error.
-   - Updated Status Pages plugin configuration to add generic throwable handling with proper body structure
-   - Added handling for BadRequestException to send 400 bad request
-   - Found out that there was no scaffolding validation code/annotation generated with model classes based on API spec like in java
-   - Implemented manual validation for the input fields using regex for driver, exception handling for url validation
- 
+    - Updated Status Pages plugin configuration to add generic throwable handling with proper body structure
+    - Added handling for BadRequestException to send 400 bad request
+    - Found out that there was no scaffolding validation code/annotation generated with model classes based on API spec
+      like in java
+    - Implemented manual validation for the input fields using regex for driver, exception handling for url validation
+
 #### Integration
-ktor documentation page has very good examples of testing api server calls. Taking that as reference, starting with test cases 
+
+ktor documentation page has very good examples of testing api server calls. Taking that as reference, starting with test
+cases
 4 test cases, 3 for invalid input and 1 for success input is created.
 
 ### Scaling Considerations
-Conceptually, api-controller service for hitting auth service can be scaled in 2 ways as and when more capacity becomes available on the auth service:
-1. Vertical → increase auth service parallel request configuration per api-controller instance by updating in application.yaml. These configurations may be further externalized to be more on-demand.
-2. Horizontally → In case, we reach upper limit per instance, we can horizontally scale by having more instances of api-controller. (Of course DB will have to be a proper DB and not the in-memory one we are using to simulate DB interaction currently)
 
-We can even have a scaling rule for auth service based on hit load and hit load we can control exclusively from api-controller in the above 2 ways
+Conceptually, api-controller service for hitting auth service can be scaled in 2 ways as and when more capacity becomes
+available on the auth service:
+
+1. Vertical → increase auth service parallel request configuration per api-controller instance by updating in
+   application.yaml. These configurations may be further externalized to be more on-demand.
+2. Horizontally → In case, we reach upper limit per instance, we can horizontally scale by having more instances of
+   api-controller. (Of course DB will have to be a proper DB and not the in-memory one we are using to simulate DB
+   interaction currently)
+
+We can even have a scaling rule for auth service based on hit load and hit load we can control exclusively from
+api-controller in the above 2 ways
 
 ### Change Log
+
 #### 2026.03.06 - Review 1 Feedback:
+
 1. Callback does not get the passed in driver-token. Instead, it contains the callback url
-   - Silly Copy-Paste Mistake.
-   - Fixed and updated Test cases to validate all fields and not just `status`
-   - Hardened Integration Test Cases to use `externalServices` instead of mocks for proper upstream and downstream API validations.
+    - Silly Copy-Paste Mistake.
+    - Fixed and updated Test cases to validate all fields and not just `status`
+    - Hardened Integration Test Cases to use `externalServices` instead of mocks for proper upstream and downstream API
+      validations.
 2. Callback gets unknown status for valid requests
-   - Timeout scenario is implemented using HttpClient Timeout configuration causing TimeoutExceptions to be thrown by client. 
-   - All auth service call exceptions are caught and status is communicated as 'unknown' if there is any issue contacting auth service
-   - Also, auth-service is assumed to be provided as an external service, and its url is to be configured in the application.yaml file. Currently, it is set to http://localhost:8080/auth-sevice/charging-sessions
-   - In case it needs to be implemented as an additional module as part of the current assignment then let me know.
-3. Callback is not called for invalid Driver Token. Currently, driver token validation is part of API message validation in controller. Make it part of Business Validation and report invalid status to callback
-   - Request Body Validations are generally part of API gateway where we provide the API spec with all field constraints
-   - In case the application wants to get a chance at such validations and do some additional processing then the constraints need to be relaxed from spec so that it is not rejected by the gateway.
-   - Certain validations like uuid and callback validation should still be part of API/request validation as the request processing might not be possible at all if they are invalid.
-   - For now, have moved driver token validation to be processed asynchronously before calling the auth service.
+    - Timeout scenario is implemented using HttpClient Timeout configuration causing TimeoutExceptions to be thrown by
+      client.
+    - All auth service call exceptions are caught and status is communicated as 'unknown' if there is any issue
+      contacting auth service
+    - Also, auth-service is assumed to be provided as an external service, and its url is to be configured in the
+      application.yaml file. Currently, it is set to http://localhost:8080/auth-sevice/charging-sessions
+    - In case it needs to be implemented as an additional module as part of the current assignment then let me know.
+3. Callback is not called for invalid Driver Token. Currently, driver token validation is part of API message validation
+   in controller. Make it part of Business Validation and report invalid status to callback
+    - Request Body Validations are generally part of API gateway where we provide the API spec with all field
+      constraints
+    - In case the application wants to get a chance at such validations and do some additional processing then the
+      constraints need to be relaxed from spec so that it is not rejected by the gateway.
+    - Certain validations like uuid and callback validation should still be part of API/request validation as the
+      request processing might not be possible at all if they are invalid.
+    - For now, have moved driver token validation to be processed asynchronously before calling the auth service.
