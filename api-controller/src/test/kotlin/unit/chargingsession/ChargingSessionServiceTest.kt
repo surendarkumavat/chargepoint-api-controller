@@ -1,4 +1,4 @@
-package com.suri.chargepoint.unit.chargingsession
+package com.suri.chargepoint.apicontroller.unit.chargingsession
 
 import com.suri.chargepoint.apicontroller.domain.chargingsession.client.ChargingSessionAuthServiceApiWrapper
 import com.suri.chargepoint.apicontroller.domain.chargingsession.dto.ChargingSessionDto

@@ -1,4 +1,4 @@
-package com.suri.chargepoint.integration
+package com.suri.chargepoint.apicontroller.integration.chargingsession
 
 import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSessionsPost200Response
 import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSessionsPostRequest
