@@ -9,12 +9,6 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
-    val httpClient = configureHttpClient(environment.config)
-
-    environment.monitor.subscribe(ApplicationStopping) {
-        httpClient.close()
-    }
-
     //Infra Config
     configureMonitoring()
     configureRouting()

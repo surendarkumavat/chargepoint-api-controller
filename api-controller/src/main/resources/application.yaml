@@ -17,4 +17,4 @@ app:
       connect-attempts: 5
     auth-service:
       max-parallel-requests: 100
-      endpoint: "http://localhost:8080/auth-sevice/charging-sessions"
+      endpoint: "http://localhost:8081/charging-sessions"
