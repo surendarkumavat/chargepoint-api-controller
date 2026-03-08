@@ -1,4 +1,4 @@
-package com.suri.chargepoint
+package com.suri.chargepoint.utils.authservice
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*

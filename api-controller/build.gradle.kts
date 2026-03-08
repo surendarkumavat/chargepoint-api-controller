@@ -1,21 +1,14 @@
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
+    kotlin("jvm")
     alias(libs.plugins.ktor)
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.openapi.generator)
 }
 
-group = "com.suri.chargepoint"
-version = "0.0.1"
-
 application {
     mainClass = "io.ktor.server.netty.EngineMain"
-}
-
-kotlin {
-    jvmToolchain(25)
 }
 
 dependencies {
@@ -48,7 +41,7 @@ dependencies {
 }
 
 val openApiOutDir: Provider<Directory> = layout.buildDirectory.dir("generated/openapi")
-val apiSourcesPath = "$rootDir/src/main/resources/api"
+val apiSourcesPath = "$projectDir/src/main/resources/api"
 val apiRootName = "com.suri.chargepoint.apicontroller"
 
 tasks.register<GenerateTask>("generateAuthServiceApiClient") {

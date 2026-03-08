@@ -4,7 +4,7 @@ import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSess
 import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSessionsPostRequest
 import com.suri.chargepoint.apicontroller.server.chargingsession.models.ChargingSessionsPost202Response
 import com.suri.chargepoint.apicontroller.server.chargingsession.models.ChargingSessionsPostDefaultResponse
-import com.suri.chargepoint.configureRouting
+import com.suri.chargepoint.apicontroller.configureRouting
 import com.suri.chargepoint.domain.chargingsession.client.ChargingSessionAuthServiceApiWrapper
 import com.suri.chargepoint.domain.chargingsession.repository.ChargingSessionRepository
 import com.suri.chargepoint.domain.chargingsession.worker.AsyncAuthServiceWorker

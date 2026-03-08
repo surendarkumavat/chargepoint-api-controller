@@ -1,4 +1,4 @@
-package com.suri.chargepoint
+package com.suri.chargepoint.apicontroller
 
 import com.suri.chargepoint.domain.chargingsession.dao.ChargingSessionTable
 import io.ktor.server.application.*

@@ -1,4 +1,4 @@
-package com.suri.chargepoint
+package com.suri.chargepoint.apicontroller
 
 import com.codahale.metrics.Slf4jReporter
 import io.ktor.http.*

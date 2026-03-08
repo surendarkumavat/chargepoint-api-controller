@@ -1,4 +1,4 @@
-package com.suri.chargepoint
+package com.suri.chargepoint.utils.authservice
 
 import com.suri.chargepoint.apicontroller.client.authservice.models.ChargingSessionsPostDefaultResponse
 import com.suri.chargepoint.domain.chargingsession.controller.chargingSessionRoutes

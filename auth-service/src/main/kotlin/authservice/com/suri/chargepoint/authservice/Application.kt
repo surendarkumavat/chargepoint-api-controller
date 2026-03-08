@@ -1,4 +1,4 @@
-package com.suri.chargepoint
+package com.suri.chargepoint.utils.authservice
 
 import com.suri.chargepoint.domain.chargingsession.client.ChargingSessionAuthServiceApiWrapper
 import com.suri.chargepoint.domain.chargingsession.repository.ChargingSessionRepository
@@ -6,10 +6,11 @@ import com.suri.chargepoint.domain.chargingsession.repository.ChargingSessionRep
 import com.suri.chargepoint.domain.chargingsession.worker.AsyncAuthServiceWorker
 import io.ktor.server.application.*
 import io.ktor.server.config.*
+import io.ktor.server.netty.EngineMain
 
 
 fun main(args: Array<String>) {
-    io.ktor.server.netty.EngineMain.main(args)
+    EngineMain.main(args)
 }
 
 fun Application.module() {
