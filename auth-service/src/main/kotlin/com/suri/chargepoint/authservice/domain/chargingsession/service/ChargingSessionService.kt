@@ -21,15 +21,11 @@ internal class ChargingSessionService(
         if (!DRIVER_TOKEN_REGEX.matches(dto.driverId))
             throw InvalidDriverTokenException()
 
-        if (dto.driverId == "validDriverToken123")
-            return Status.allowed
-
-        if (dto.driverId == "timeoutDriverToken123") {
+        if (dto.driverId == "timeoutDriverToken123")
             delay(6000)
-            return Status.allowed
-        }
 
-        return Status.not_allowed
+
+        return Status.allowed
     }
 }
 

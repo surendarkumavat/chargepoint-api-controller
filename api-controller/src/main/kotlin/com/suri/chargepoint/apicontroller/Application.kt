@@ -17,7 +17,7 @@ fun Application.module() {
     val repo: ChargingSessionRepository = ChargingSessionRepositoryImpl()
     val httpClient = configureHttpClient(environment.config)
 
-    val authServiceUrl: String = environment.config.propertyOrNull("app.api-controller.auth-service.base-path")?.getAs()
+    val authServiceUrl: String = environment.config.propertyOrNull("app.api-controller.auth-service.endpoint")?.getAs()
         ?: throw IllegalStateException("Missing application configuration property app.api-controller.auth-service.endpoint")
 
     val apiWrapper = ChargingSessionAuthServiceApiWrapper(authServiceUrl, httpClient)
