@@ -8,16 +8,15 @@
 
 To build or run the project, use one of the following tasks:
 
-| Task                                                                                                                                                                                    | Description                                                          |
-|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
-| `./gradlew test`                                                                                                                                                                        | Run the tests                                                        |
-| `./gradlew build`                                                                                                                                                                       | Build everything                                                     |
-| `./gradlew buildFatJar`                                                                                                                                                                 | Build an executable JAR of the server with all dependencies included |
-| `./gradlew buildImage`                                                                                                                                                                  | Build the docker image to use with the fat JAR                       |
-| `./gradlew publishImageToLocalRegistry`                                                                                                                                                 | Publish the docker image locally                                     |
-| `./gradlew run`                                                                                                                                                                         | Run the server                                                       |
-| `./gradlew run --args="-P:app.api-controller.auth-service.endpoint='http://localhost:8080/auth-sevice/charging-sessions' -P:app.api-controller.auth-service.max-parallel-requests=100"` | Run the server with the overidden app config                         |
-| `./gradlew runDocker`                                                                                                                                                                   | Run using the local docker image                                     |
+| Task                                                   | Description                                                          |
+|--------------------------------------------------------|----------------------------------------------------------------------|
+| `./gradlew test`                                       | Run the tests                                                        |
+| `./gradlew build`                                      | Build everything                                                     |
+| `./gradlew :api-controllerbuildFatJar`                 | Build an executable JAR of the server with all dependencies included |
+| `./gradlew :api-controllerbuildImage`                  | Build the docker image to use with the fat JAR                       |
+| `./gradlew :api-controllerpublishImageToLocalRegistry` | Publish the docker image locally                                     |
+| `./gradlew :api-controller:run`                        | Run the server with the overidden app config                         |
+| `./gradlew :api-controller:runDocker`                  | Run using the local docker image                                     |
 
 If the server starts successfully, you'll see the following output:
 
